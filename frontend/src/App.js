@@ -1,44 +1,49 @@
-import React from "react"
+import React, { useState } from "react"
 
 const users = [
 	{
 		id: "1",
 		username: "test-user-1",
 		password: "pass@1",
-		logged_in: false
+		isLoggedIn: false
 	},
 	{
 		id: "2",
 		username: "test-user-2",
 		password: "pass@2",
-		logged_in: true
+		isLoggedIn: true
 	},
 	{
 		id: "3",
 		username: "test-user-3",
 		password: "pass@3",
-		logged_in: false
+		isLoggedIn: false
 	}
 ]
 
-function UserDiv() {
-	const user_divs = users.map(user => <div key={user.id}>
-		<p>User {user.username}:</p>
-		{user.logged_in ? (
-			<>
-				<p>You are logged in.</p>
-				<p>Your password is: {user.password}</p>
-			</>
-		) : (
-			<>
-				<p>Please log in!</p>
-			</>
-		)}
-		<br />
-	</div>)
+function UserDiv({ user }) {
+	const [isLoggedIn, setIsLoggedIn] = useState(user.isLoggedIn)
+	const [buttonContent, setButtonContent] = useState(isLoggedIn ? "Logout" : "Login")
+
+	function handleClick() {
+		setIsLoggedIn(!isLoggedIn)
+		setButtonContent(!isLoggedIn ? "Logout" : "Login")
+	}
+
 	return (
-		<div>
-			{user_divs}
+		<div key={user.id}>
+			<p>User {user.username}:</p>
+			{isLoggedIn && 
+				<>
+					<p>You are logged in.</p>
+					<p>Your password is: {user.password}</p>
+				</>
+			}
+			<button onClick={handleClick}>
+				{buttonContent}
+			</button>
+			<br />
+			<br />
 		</div>
 	)
 }
@@ -48,7 +53,7 @@ function App() {
 		<div>
 			<p>Homepage</p>
 			<br />
-			<UserDiv />
+			{users.map(user => <UserDiv user={user}/>)}
 		</div>
 	)
 }
