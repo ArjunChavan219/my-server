@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 const users = [
 	{
@@ -27,8 +27,11 @@ function UserDiv({ user }) {
 
 	function handleClick() {
 		setIsLoggedIn(!isLoggedIn)
-		setButtonContent(!isLoggedIn ? "Logout" : "Login")
 	}
+
+	useEffect(() => {
+		setButtonContent(isLoggedIn ? "Logout" : "Login")
+	}, [isLoggedIn])
 
 	return (
 		<div key={user.id}>
