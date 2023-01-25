@@ -1,25 +1,5 @@
 import React, { useEffect, useState } from "react"
 
-const users = [
-	{
-		id: "1",
-		username: "test-user-1",
-		password: "pass@1",
-		isLoggedIn: false
-	},
-	{
-		id: "2",
-		username: "test-user-2",
-		password: "pass@2",
-		isLoggedIn: true
-	},
-	{
-		id: "3",
-		username: "test-user-3",
-		password: "pass@3",
-		isLoggedIn: false
-	}
-]
 
 function UserDiv({ user }) {
 	const [isLoggedIn, setIsLoggedIn] = useState(user.isLoggedIn)
@@ -52,11 +32,25 @@ function UserDiv({ user }) {
 }
 
 function App() {
+	const [users, setUsers] = useState([])
+
+	useEffect(() => {
+		fetch("/users").then(
+			res => res.json()
+		).then(
+			data => {
+				setUsers(data.users)
+				console.log("here")
+				console.log(data.users)
+			}
+		)
+	}, [])
+
 	return (
 		<div>
 			<p>Homepage</p>
 			<br />
-			{users.map(user => <UserDiv user={user}/>)}
+			{users.map((user, itr) => <UserDiv key={itr} user={user}/>)}
 		</div>
 	)
 }
