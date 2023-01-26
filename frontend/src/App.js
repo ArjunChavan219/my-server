@@ -1,32 +1,27 @@
 import React, { useEffect, useState, useReducer } from "react"
 
 
-function UserDiv({ user, updateUsers }) {
-	const [isLoggedIn, setIsLoggedIn] = useState(user.isLoggedIn)
-	const [buttonContent, setButtonContent] = useState(isLoggedIn ? "Logout" : "Login")
+function TaskDiv({ task, updateTasks }) {
+	const [isDone, setIsDone] = useState(task.isDone)
+	const [buttonContent, setButtonContent] = useState("To Do")
 
 	function handleClick() {
-		setIsLoggedIn(!isLoggedIn)
+		setIsDone(!isDone)
 	}
 
 	useEffect(() => {
-		updateUsers({
-			type: "logUpdate",
-			id: user.id,
-			user: {...user, isLoggedIn: isLoggedIn}
+		updateTasks({
+			type: "taskUpdate",
+			id: task.id,
+			task: {...task, isDone: isDone}
 		})
-		setButtonContent(isLoggedIn ? "Logout" : "Login")
-	}, [isLoggedIn])
+		setButtonContent(isDone ? "To Do" : "Done")
+	}, [isDone])
 
 	return (
-		<div key={user.id}>
-			<p>User {user.username}:</p>
-			{isLoggedIn && 
-				<>
-					<p>You are logged in.</p>
-					<p>Your password is: {user.password}</p>
-				</>
-			}
+		<div key={task.id}>
+			<p>Task: {task.name}</p>
+			{!isDone && <p>Description: {task.description}</p>}
 			<button onClick={handleClick}>
 				{buttonContent}
 			</button>
@@ -36,17 +31,17 @@ function UserDiv({ user, updateUsers }) {
 	)
 }
 
-function usersReducer(users, action) {
+function tasksReducer(tasks, action) {
 	switch (action.type) {
-		case "addUsers": {
-			return action.users
+		case "addTasks": {
+			return action.tasks
 		}
-		case "logUpdate": {
-			return users.map(user => {
-				if (user.id == action.id) {
-					return action.user
+		case "taskUpdate": {
+			return tasks.map(task => {
+				if (task.id == action.id) {
+					return action.task
 				} else {
-					return user
+					return task
 				}
 			})
 		}
@@ -57,33 +52,33 @@ function usersReducer(users, action) {
 }
 
 function App() {
-	const [users, usersDispatch] = useReducer(usersReducer, [])
-	const [activeUsers, setActiveUsers] = useState(0)
+	const [tasks, tasksDispatch] = useReducer(tasksReducer, [])
+	const [activeTasks, setActiveTasks] = useState(0)
 
 	useEffect(() => {
-		fetch("/users").then(
+		fetch("/tasks").then(
 			res => res.json()
 		).then(
 			data => {
-				usersDispatch({
-					type: "addUsers",
-					users: data.users
+				tasksDispatch({
+					type: "addTasks",
+					tasks: data.tasks
 				})
 			}
 		)
 	}, [])
 
 	useEffect(() => {
-		setActiveUsers(users.filter(user => user.isLoggedIn).length)
-	}, [users])
+		setActiveTasks(tasks.filter(task => !task.isDone).length)
+	}, [tasks])
 
 	function handleSaveSession() {
 		const requestOptions = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({users: users})
+			body: JSON.stringify({tasks: tasks})
 		}
-		fetch("/users", requestOptions).then(
+		fetch("/tasks", requestOptions).then(
 			res => res.json()
 		).then(
 			data => {
@@ -95,9 +90,9 @@ function App() {
 	return (
 		<div>
 			<p>Homepage</p>
-			<p>Total Active Users: {activeUsers}</p>
+			<p>Total Active Tasks: {activeTasks}</p>
 			<br />
-			{users.map((user, itr) => <UserDiv key={itr} user={user} updateUsers={usersDispatch}/>)}
+			{tasks.map((task, itr) => <TaskDiv key={itr} task={task} updateTasks={tasksDispatch}/>)}
 			<br />
 			<button onClick={handleSaveSession}>Save Session</button>
 		</div>

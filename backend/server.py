@@ -4,20 +4,34 @@ from flask import Flask, request
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 app = Flask(__name__)
 test_db = client["testDB"]
-users = test_db["users"]
+tasks = test_db["tasks"]
 
 
-@app.route('/users', methods=["GET", "POST"])
-def get_users():
-    current_users = list(users.find({}, {"_id": 0}))
+def list_to_dict(users):
+    return {user["id"]: user for user in users}
+
+
+@app.route('/tasks', methods=["GET", "POST"])
+def get_tasks():
+
+    current_tasks = list(tasks.find({}, {"_id": 0}))
     if request.method == "POST":
-        print(request.json)
+        update_tasks = []
+        initial_state = list_to_dict(current_tasks)
+        new_state = list_to_dict(request.json["tasks"])
+
+        for task_id in new_state:
+            if initial_state[task_id]["isDone"] != new_state[task_id]["isDone"]:
+                update_tasks.append((task_id, new_state[task_id]["isDone"]))
+
+        for task_id, isDone in update_tasks:
+            tasks.update_one({"id": task_id}, {"$set": {"isDone": isDone}})
         return {
             "status": 200
         }
     else:
         return {
-            "users": current_users
+            "tasks": current_tasks
         }
 
 
