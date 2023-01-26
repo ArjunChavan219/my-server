@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useReducer } from "react"
 
 
-function UserDiv({ user }) {
+function UserDiv({ user, updateUsers }) {
 	const [isLoggedIn, setIsLoggedIn] = useState(user.isLoggedIn)
 	const [buttonContent, setButtonContent] = useState(isLoggedIn ? "Logout" : "Login")
 
@@ -10,6 +10,11 @@ function UserDiv({ user }) {
 	}
 
 	useEffect(() => {
+		updateUsers({
+			type: "logUpdate",
+			id: user.id,
+			user: {...user, isLoggedIn: isLoggedIn}
+		})
 		setButtonContent(isLoggedIn ? "Logout" : "Login")
 	}, [isLoggedIn])
 
@@ -31,26 +36,70 @@ function UserDiv({ user }) {
 	)
 }
 
+function usersReducer(users, action) {
+	switch (action.type) {
+		case "addUsers": {
+			return action.users
+		}
+		case "logUpdate": {
+			return users.map(user => {
+				if (user.id == action.id) {
+					return action.user
+				} else {
+					return user
+				}
+			})
+		}
+		default: {
+			throw Error("Unknown action: " + action.type)
+		}
+	}
+}
+
 function App() {
-	const [users, setUsers] = useState([])
+	const [users, usersDispatch] = useReducer(usersReducer, [])
+	const [activeUsers, setActiveUsers] = useState(0)
 
 	useEffect(() => {
 		fetch("/users").then(
 			res => res.json()
 		).then(
 			data => {
-				setUsers(data.users)
-				console.log("here")
-				console.log(data.users)
+				usersDispatch({
+					type: "addUsers",
+					users: data.users
+				})
 			}
 		)
 	}, [])
 
+	useEffect(() => {
+		setActiveUsers(users.filter(user => user.isLoggedIn).length)
+	}, [users])
+
+	function handleSaveSession() {
+		const requestOptions = {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({users: users})
+		}
+		fetch("/users", requestOptions).then(
+			res => res.json()
+		).then(
+			data => {
+				console.log(data)
+			}
+		)
+	}
+
 	return (
 		<div>
 			<p>Homepage</p>
+			<p>Total Active Users: {activeUsers}</p>
 			<br />
-			{users.map((user, itr) => <UserDiv key={itr} user={user}/>)}
+			{users.map((user, itr) => <UserDiv key={itr} user={user} updateUsers={usersDispatch}/>)}
+			<br />
+			<button onClick={handleSaveSession}>Save Session</button>
 		</div>
 	)
 }
