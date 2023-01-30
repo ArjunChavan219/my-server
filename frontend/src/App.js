@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useReducer } from "react"
 
+const flaskUrl = "http://0.0.0.0:5001"
 
 function TaskDiv({ task, updateTasks }) {
 	const [isDone, setIsDone] = useState(task.isDone)
@@ -56,7 +57,7 @@ function App() {
 	const [activeTasks, setActiveTasks] = useState(0)
 
 	useEffect(() => {
-		fetch("/tasks").then(
+		fetch(`${flaskUrl}/tasks`).then(
 			res => res.json()
 		).then(
 			data => {
@@ -78,7 +79,7 @@ function App() {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({tasks: tasks})
 		}
-		fetch("/tasks", requestOptions).then(
+		fetch(`${flaskUrl}/tasks`, requestOptions).then(
 			res => res.json()
 		).then(
 			data => {

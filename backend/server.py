@@ -1,10 +1,13 @@
 import pymongo
 from flask import Flask, request
+from flask_cors import CORS
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
-app = Flask(__name__)
 test_db = client["testDB"]
 tasks = test_db["tasks"]
+
+app = Flask(__name__)
+CORS(app)
 
 
 def list_to_dict(users):
@@ -36,4 +39,4 @@ def get_tasks():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
