@@ -1,21 +1,91 @@
 import React, { useState } from "react"
 import { useAuth } from "../provider/AuthProvider"
+import styles from "../styles/Login.module.css"
+
+const flaskUrl = "http://0.0.0.0:5001"
+
+
+function Input({ text, error }) {
+    const type = text === "Username" ? "text" : "password"
+    const ac = text === "Username" ?  "username" : "current-password"
+    const id = text === "Username" ?  "usernameInput" : "passwordInput"
+
+    let errorContent = (<></>)
+    if (error !== 0 && error === text) {
+        const errorMessage = text === "Username" ? "Username is invalid" : "Password does not match"
+        errorContent = (<div className={styles.ErrorDiv}>{errorMessage}</div>)
+    }
+    
+    return (
+        <>
+            <div className={styles.InputParentDiv}>
+                <div className={styles.LabelDiv}>
+                    <label>{text}</label>
+                </div>
+                <div className={styles.InputDiv}>
+                    <input id={id} type={type} className={styles.Input} autoComplete={ac}/>
+                </div>
+                {errorContent}
+            </div>
+        </>
+    )
+}
+
+function Button() {
+    return (
+        <>
+            <div className={styles.ButtonDiv}>
+                <button type="submit" className={styles.Button}>
+                    Login
+                </button>
+            </div>
+        </>
+    )
+}
 
 const Login = () => {
     const [user, setUser] = useState(null)
+    const [error, setError] = useState("")
     const { login } = useAuth()
-    const handleLogin = () => {
-        login(user)
+    function handleLogin(event) {
+        event.preventDefault()
+        const username = event.currentTarget.elements.usernameInput.value
+        const password = event.currentTarget.elements.passwordInput.value
+        console.log(username, password)
+
+        const requestOptions = {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+                "username": username,
+                "password": password
+            })
+		}
+		fetch(`${flaskUrl}/login`, requestOptions).then(
+			res => res.json()
+		).then(
+			data => {
+				console.log(data)
+                if (data.success) {
+                    login(username)
+                    setError("")
+                } else {
+                    setError(data.error)
+                }
+			}
+		)
     }
 
     return (
         <>
             <h1>Login Page</h1>
-            <label>Name</label>
-            <input type="text" onChange={(e) => setUser(e.target.value)} />
-            <button type="submit" onClick={handleLogin}>
-                Login
-            </button>
+
+            <form id="login" onSubmit={handleLogin}>
+                <Input text="Username" type="text" error={error}/>
+                <Input text="Password" type="password" error={error}/>
+                <Button />
+            </form>
+            
         </>
     )
 }

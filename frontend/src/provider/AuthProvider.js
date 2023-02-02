@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     })
     const login = (user) => {
         if (user === "admin") {
-            setUser({ username: user, permissions: ["view_extra"] })
+            setUser({ username: user, permissions: ["view_extra", "view_about"] })
         } else {
             setUser({ username: user, permissions: ["view_about"] })
         }
