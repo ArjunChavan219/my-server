@@ -4,24 +4,27 @@ from flask_cors import CORS
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 test_db = client["testDB"]
-tasks = test_db["tasks"]
 
 app = Flask(__name__)
 CORS(app)
 
 
-def list_to_dict(users):
-    return {user["id"]: user for user in users}
+def list_to_dict_task(tasks_):
+    return {task["id"]: task for task in tasks_}
+
+
+def list_to_dict_user(users_):
+    return {user["username"]: user for user in users_}
 
 
 @app.route('/tasks', methods=["GET", "POST"])
 def get_tasks():
-
+    tasks = test_db["tasks"]
     current_tasks = list(tasks.find({}, {"_id": 0}))
     if request.method == "POST":
         update_tasks = []
-        initial_state = list_to_dict(current_tasks)
-        new_state = list_to_dict(request.json["tasks"])
+        initial_state = list_to_dict_task(current_tasks)
+        new_state = list_to_dict_task(request.json["tasks"])
 
         for task_id in new_state:
             if initial_state[task_id]["isDone"] != new_state[task_id]["isDone"]:
@@ -38,5 +41,45 @@ def get_tasks():
         }
 
 
+@app.route('/users', methods=["GET", "POST"])
+def get_users():
+    users = test_db["users"]
+    users_dict = list_to_dict_user(list(users.find({}, {"_id": 0})))
+
+    if request.method == "POST":
+        print("post")
+        return {
+            "status": 200
+        }
+    else:
+        return {
+            "users": users_dict
+        }
+
+
+@app.route('/login', methods=["POST"])
+def login_check():
+    users = test_db["users"]
+    users_dict = list_to_dict_user(list(users.find({}, {"_id": 0})))
+
+    username = request.json["username"]
+    password = request.json["password"]
+
+    if username not in users_dict:
+        return {
+            "success": False,
+            "error": "Username"
+        }
+    if users_dict[username]["password"] != password:
+        return {
+            "success": False,
+            "error": "Password"
+        }
+
+    return {
+        "success": True
+    }
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
