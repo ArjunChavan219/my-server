@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useReducer } from "react"
+
 import { useAuth } from "../provider/AuthProvider"
-import Server from "../routes/Server"
+
 
 function TaskDiv({ task, updateTasks }) {
 	const [isDone, setIsDone] = useState(task.isDone)

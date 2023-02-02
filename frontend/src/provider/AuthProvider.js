@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+
 import Server from "../routes/Server"
+
 
 const AuthContext = createContext(null)
 
@@ -35,7 +37,6 @@ export const AuthProvider = ({ children }) => {
             username: "",
             permissions: []
         })
-        console.log("called")
     }
 
     useEffect(() => {

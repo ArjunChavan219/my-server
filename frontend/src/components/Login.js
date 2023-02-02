@@ -1,7 +1,9 @@
 import React, { useState } from "react"
 import { Navigate } from "react-router-dom"
-import { useAuth } from "../provider/AuthProvider"
+
 import styles from "../styles/Login.module.css"
+
+import { useAuth } from "../provider/AuthProvider"
 
 
 function Input({ text, error }) {

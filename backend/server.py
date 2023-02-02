@@ -2,6 +2,7 @@ import pymongo
 from flask import Flask, request
 from flask_cors import CORS
 
+
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 test_db = client["testDB"]
 

@@ -13,6 +13,7 @@ import Authorization from "./Authorization"
 
 import PERMISSIONS from "../permissions/Permissions"
 
+
 function RoutePath() {
     return (
         <Routes>
