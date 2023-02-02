@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer } from "react"
-
-const flaskUrl = "http://0.0.0.0:5001"
+import { useAuth } from "../provider/AuthProvider"
+import Server from "../routes/Server"
 
 function TaskDiv({ task, updateTasks }) {
 	const [isDone, setIsDone] = useState(task.isDone)
@@ -55,11 +55,10 @@ function tasksReducer(tasks, action) {
 function Session() {
 	const [tasks, tasksDispatch] = useReducer(tasksReducer, [])
 	const [activeTasks, setActiveTasks] = useState(0)
+	const { server } = useAuth()
 
 	useEffect(() => {
-		fetch(`${flaskUrl}/tasks`).then(
-			res => res.json()
-		).then(
+		server.get_tasks().then(
 			data => {
 				tasksDispatch({
 					type: "addTasks",
@@ -74,14 +73,7 @@ function Session() {
 	}, [tasks])
 
 	function handleSaveSession() {
-		const requestOptions = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({tasks: tasks})
-		}
-		fetch(`${flaskUrl}/tasks`, requestOptions).then(
-			res => res.json()
-		).then(
+		server.set_tasks(tasks).then(
 			data => {
 				console.log(data)
 			}

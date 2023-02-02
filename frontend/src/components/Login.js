@@ -1,8 +1,7 @@
 import React, { useState } from "react"
+import { Navigate } from "react-router-dom"
 import { useAuth } from "../provider/AuthProvider"
 import styles from "../styles/Login.module.css"
-
-const flaskUrl = "http://0.0.0.0:5001"
 
 
 function Input({ text, error }) {
@@ -44,28 +43,20 @@ function Button() {
 }
 
 const Login = () => {
-    const [user, setUser] = useState(null)
     const [error, setError] = useState("")
-    const { login } = useAuth()
+    const { user, login, server } = useAuth()
+
+    if (user.username) {
+        return <Navigate to="/profile" replace />
+    }
+
     function handleLogin(event) {
         event.preventDefault()
         const username = event.currentTarget.elements.usernameInput.value
         const password = event.currentTarget.elements.passwordInput.value
-        console.log(username, password)
-
-        const requestOptions = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-                "username": username,
-                "password": password
-            })
-		}
-		fetch(`${flaskUrl}/login`, requestOptions).then(
-			res => res.json()
-		).then(
+        
+        server.login(username, password).then(
 			data => {
-				console.log(data)
                 if (data.success) {
                     login(username)
                     setError("")

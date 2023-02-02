@@ -27,9 +27,9 @@ function RoutePath() {
             } />
             <Route element={<Authorization permissions={[PERMISSIONS.CAN_VIEW_EXTRA]} />}>
                 <Route path="extra" element={<Extra />} />
+                <Route path="session" element={<Session />} />
             </Route>
             <Route path="login" element={<Login />} />
-            <Route path="session" element={<Session />} />
         </Routes>
     )
 }
